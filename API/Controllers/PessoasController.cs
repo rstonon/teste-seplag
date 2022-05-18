@@ -69,6 +69,7 @@ namespace API.Controllers
             );
 
             _context.Pessoas.Add(pessoa);
+            _context.SaveChanges();
 
             return CreatedAtAction("GetById", new {id = pessoa.Id}, pessoa);
         }
@@ -108,6 +109,7 @@ namespace API.Controllers
                 model.nacional,
                 model.situacao
             );
+            _context.SaveChanges();
 
             return NoContent();
         }
@@ -122,6 +124,7 @@ namespace API.Controllers
                 return NotFound();
 
             _context.Pessoas.Remove(pessoa);
+            _context.SaveChanges();
 
             return NoContent();
         }
