@@ -7,9 +7,9 @@ namespace API.Controllers
     public class PessoasController : Controller
     {
 
-        public IActionResult Index()
+        public IActionResult GetAll()
         {
-            return View();
+            return Ok();
         }
     }
 }
