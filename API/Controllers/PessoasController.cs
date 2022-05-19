@@ -1,6 +1,7 @@
 ﻿using API.Entities;
 using API.Models;
 using API.Persistence;
+using API.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -12,17 +13,17 @@ namespace API.Controllers
     [Route("api/pessoas")]
     public class PessoasController : Controller
     {
-        private readonly PessoaContext _context;
-        public PessoasController(PessoaContext context)
+        private readonly IPessoaRepository _repository;
+        public PessoasController(IPessoaRepository repository)
         {
-            _context = context;
+            _repository = repository;
         }
 
         // GET api/pessoas
         [HttpGet]
         public IActionResult GetAll()
         {
-            var pessoas = _context.Pessoas;
+            var pessoas = _repository.GetAll();
 
             return Ok(pessoas);
         }
@@ -31,7 +32,7 @@ namespace API.Controllers
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
-            var pessoa = _context.Pessoas.SingleOrDefault(p => p.Id == id);
+            var pessoa = _repository.GetById(id);
 
             if (pessoa == null)
                 return NotFound();
@@ -40,8 +41,42 @@ namespace API.Controllers
         }
 
         // POST api/pessoas
+        /// <summary>
+        /// Cadastrar Pessoas
+        /// </summary>
+        /// 
+        /// <remarks>
+        /// {
+        ///  "cpf_Cnpj": "string",
+        ///  "razao_Social": "string",
+        ///  "nome_Fantasia": "string",
+        ///  "tipo_empresa": "string",
+        ///  "data_Constituicao": "2022-05-19T10:00:54.033Z",
+        ///  "porte": "string",
+        ///  "telefone": "string",
+        ///  "telefone2": "string",
+        ///  "telefone3": "string",
+        ///  "site": "string",
+        ///  "email": "string",
+        ///  "caracterizacao_Capital": "string",
+        ///  "quantidade_Quota": 0,
+        ///  "valor_Quota": 0,
+        ///  "capital_Social": 0,
+        ///  "estado_Civil": "string",
+        ///  "profissao": "string",
+        ///  "data_Nascimento": "2022-05-19T10:00:54.033Z",
+        ///  "genero": "string",
+        ///  "nacionalidade": "string",
+        ///  "tipo_Pessoa": "string",
+        ///  "nacional": "string"
+        /// }
+        /// </remarks>
+        /// 
+        /// <param name="model">Dados da Vaga.</param>
+        /// <returns>Objeto recém-criado.</returns>
+        /// <response code="201" >Sucesso.</response>
         [HttpPost]
-        public IActionResult Post(AddPessoaInputModel model)
+        public IActionResult Add(AddPessoaInputModel model)
         {
             var pessoa = new Pessoa(
                 model.cpf_Cnpj,
@@ -68,17 +103,16 @@ namespace API.Controllers
                 model.nacional
             );
 
-            _context.Pessoas.Add(pessoa);
-            _context.SaveChanges();
+            _repository.Add(pessoa);
 
-            return CreatedAtAction("GetById", new {id = pessoa.Id}, pessoa);
+            return CreatedAtAction("GetById", new { id = pessoa.Id }, pessoa);
         }
 
         // PUT api/packages/123
         [HttpPut("{id}")]
-        public IActionResult Put(int id, UpdatePessoaInputModel model)
+        public IActionResult Update(int id, UpdatePessoaInputModel model)
         {
-            var pessoa = _context.Pessoas.SingleOrDefault(p => p.Id == id);
+            var pessoa = _repository.GetById(id);
 
             if (pessoa == null)
                 return NotFound();
@@ -105,26 +139,62 @@ namespace API.Controllers
                 model.data_Nascimento,
                 model.genero,
                 model.nacionalidade,
-                model.tipo_Pessoa,
-                model.nacional,
-                model.situacao
+                model.nacional
             );
-            _context.SaveChanges();
+
+            _repository.Update(pessoa);
+
+            return NoContent();
+        }
+
+        // DELETE api/packages/123
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id, Pessoa model)
+        {
+            var pessoa = _repository.GetById(id);
+
+            if (pessoa == null)
+                return NotFound();
+
+            _repository.Delete(pessoa);
 
             return NoContent();
         }
 
         // PUT api/packages/123
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
+        [HttpPut("{id}/ativar")]
+        public IActionResult Ativar(int id)
         {
-            var pessoa = _context.Pessoas.SingleOrDefault(p => p.Id == id);
+            var pessoa = _repository.GetById(id);
 
             if (pessoa == null)
                 return NotFound();
 
-            _context.Pessoas.Remove(pessoa);
-            _context.SaveChanges();
+            if (pessoa.Situacao != Situacoes.Ativado)
+                pessoa.Ativar();
+
+            _repository.Update(pessoa);
+
+            return NoContent();
+        }
+
+        // PUT api/packages/123
+        [HttpPut("{id}/desativar")]
+        public IActionResult Desativar(int id)
+        {
+            var pessoa = _repository.GetById(id);
+
+            if (pessoa == null)
+                return NotFound();
+
+            if (pessoa.Situacao != Situacoes.Desativado)
+                pessoa.Desativar();
+            else
+            {
+                return BadRequest();
+            }
+
+            _repository.Update(pessoa);
 
             return NoContent();
         }

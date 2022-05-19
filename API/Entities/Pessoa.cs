@@ -60,7 +60,7 @@ namespace API.Entities
         public DateTime UpdatedAt { get; private set; }
         public Situacoes Situacao { get; private set; }
 
-        public void Update(string cpf_Cnpj, string razao_Social, string nome_Fantasia, string tipo_empresa, DateTime data_Constituicao, string porte, string telefone, string telefone2, string telefone3, string site, string email, string caracterizacao_Capital, decimal quantidade_Quota, decimal valor_Quota, decimal capital_Social, string estado_Civil, string profissao, DateTime data_Nascimento, string genero, string nacionalidade, string tipo_Pessoa, string nacional, Situacoes situacao)
+        public void Update(string cpf_Cnpj, string razao_Social, string nome_Fantasia, string tipo_empresa, DateTime data_Constituicao, string porte, string telefone, string telefone2, string telefone3, string site, string email, string caracterizacao_Capital, decimal quantidade_Quota, decimal valor_Quota, decimal capital_Social, string estado_Civil, string profissao, DateTime data_Nascimento, string genero, string nacionalidade, string nacional)
         {
             Cpf_Cnpj = cpf_Cnpj;
             Razao_Social = razao_Social;
@@ -82,10 +82,18 @@ namespace API.Entities
             Data_Nascimento = data_Nascimento;
             Genero = genero;
             Nacionalidade = nacionalidade;
-            Tipo_Pessoa = tipo_Pessoa;
             Nacional = nacional;
-            Situacao = situacao;
             UpdatedAt = DateTime.Now;
+        }
+
+        public void Ativar()
+        {
+            Situacao = (Situacoes)2;
+        }
+
+        public void Desativar()
+        {
+            Situacao = (Situacoes)3;
         }
 
     }

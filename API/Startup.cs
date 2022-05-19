@@ -5,7 +5,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.OpenApi.Models; 
+using Microsoft.OpenApi.Models;
+using API.Persistence.Repositories;
 
 namespace API
 {
@@ -22,9 +23,13 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
+
             var connectionStrings = Configuration.GetConnectionString("Conn");
 
             services.AddDbContext<PessoaContext>(option => option.UseSqlServer(connectionStrings));
+
+            services.AddScoped<IPessoaRepository, PessoaRepository>();
 
             services.AddControllers();
             services.AddSwaggerGen(c =>
