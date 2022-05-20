@@ -3,6 +3,7 @@ using API.Models;
 using API.Persistence;
 using API.Persistence.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Serilog;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,15 +21,27 @@ namespace API.Controllers
         }
 
         // GET api/pessoas
+        /// <summary>
+        /// Listar todas as pessoas cadastradas.
+        /// </summary>
+        /// <returns></returns>
         [HttpGet]
         public IActionResult GetAll()
         {
             var pessoas = _repository.GetAll();
 
+            Log.Information("Listou todas as pessoas cadastradas.");
+
             return Ok(pessoas);
         }
 
         // GET api/packages/123
+        /// <summary>
+        /// Buscar o cadastro de uma pessoa através do Id
+        /// </summary>
+        /// <param name="id">Id a ser passado para buscar a pessoa.</param>
+        /// <returns>Objeto buscado.</returns>
+        /// <response code="200" >Ok.</response>
         [HttpGet("{id}")]
         public IActionResult GetById(int id)
         {
@@ -36,6 +49,8 @@ namespace API.Controllers
 
             if (pessoa == null)
                 return NotFound();
+
+            Log.Information("Pesquisou a pessoa " + pessoa.Razao_Social + " com o Id " + pessoa.Id);
 
             return Ok(pessoa);
         }
@@ -47,28 +62,28 @@ namespace API.Controllers
         /// 
         /// <remarks>
         /// {
-        ///  "cpf_Cnpj": "string",
-        ///  "razao_Social": "string",
-        ///  "nome_Fantasia": "string",
-        ///  "tipo_empresa": "string",
-        ///  "data_Constituicao": "2022-05-19T10:00:54.033Z",
+        ///  "cpf_Cnpj": "01508869006",
+        ///  "razao_Social": "RAFAEL TONON",
+        ///  "nome_Fantasia": "",
+        ///  "tipo_empresa": "",
+        ///  "data_Constituicao": "1991-08-07T00:00:00.702Z",
         ///  "porte": "string",
-        ///  "telefone": "string",
-        ///  "telefone2": "string",
-        ///  "telefone3": "string",
-        ///  "site": "string",
-        ///  "email": "string",
-        ///  "caracterizacao_Capital": "string",
+        ///  "telefone": "(54) 3522-2141",
+        ///  "telefone2": "",
+        ///  "telefone3": "",
+        ///  "site": "",
+        ///  "email": "rstonon@gmail.com",
+        ///  "caracterizacao_Capital": "",
         ///  "quantidade_Quota": 0,
         ///  "valor_Quota": 0,
         ///  "capital_Social": 0,
-        ///  "estado_Civil": "string",
-        ///  "profissao": "string",
-        ///  "data_Nascimento": "2022-05-19T10:00:54.033Z",
-        ///  "genero": "string",
-        ///  "nacionalidade": "string",
-        ///  "tipo_Pessoa": "string",
-        ///  "nacional": "string"
+        ///  "estado_Civil": "Solteiro",
+        ///  "profissao": "Programador",
+        ///  "data_Nascimento": "1991-08-07T00:00:00.702Z",
+        ///  "genero": "Masculino",
+        ///  "nacionalidade": "Brasileiro",
+        ///  "tipo_Pessoa": "Pessoa Física",
+        ///  "nacional": "Sim"
         /// }
         /// </remarks>
         /// 
@@ -78,6 +93,8 @@ namespace API.Controllers
         [HttpPost]
         public IActionResult Add(AddPessoaInputModel model)
         {
+            
+
             var pessoa = new Pessoa(
                 model.cpf_Cnpj,
                 model.razao_Social,
@@ -105,10 +122,45 @@ namespace API.Controllers
 
             _repository.Add(pessoa);
 
+            Log.Information("Cadastrado pessoa " + pessoa.Razao_Social + " com o Id " + pessoa.Id);
+
             return CreatedAtAction("GetById", new { id = pessoa.Id }, pessoa);
         }
 
         // PUT api/packages/123
+        /// <summary>
+        /// Atualizar Pessoa através do Id
+        /// </summary>
+        /// <remarks>
+        /// {
+        ///  "cpf_Cnpj": "01508869006",
+        ///  "razao_Social": "RAFAEL S TONON",
+        ///  "nome_Fantasia": "",
+        ///  "tipo_empresa": "",
+        ///  "data_Constituicao": "1991-08-07T00:00:00.702Z",
+        ///  "porte": "string",
+        ///  "telefone": "(54) 3522-2141",
+        ///  "telefone2": "",
+        ///  "telefone3": "",
+        ///  "site": "",
+        ///  "email": "rstonon@gmail.com",
+        ///  "caracterizacao_Capital": "",
+        ///  "quantidade_Quota": 0,
+        ///  "valor_Quota": 0,
+        ///  "capital_Social": 0,
+        ///  "estado_Civil": "Solteiro",
+        ///  "profissao": "Programador",
+        ///  "data_Nascimento": "1991-08-07T00:00:00.702Z",
+        ///  "genero": "Masculino",
+        ///  "nacionalidade": "Brasileiro",
+        ///  "tipo_Pessoa": "Pessoa Física",
+        ///  "nacional": "Sim"
+        /// }
+        /// </remarks>
+        /// <param name="id">Id a ser passado para atualizar a pessoa.</param>
+        /// <param name="model">Dados da Vaga.</param>
+        /// <returns></returns>
+        /// <response code="204">No Content.</response>
         [HttpPut("{id}")]
         public IActionResult Update(int id, UpdatePessoaInputModel model)
         {
@@ -144,10 +196,19 @@ namespace API.Controllers
 
             _repository.Update(pessoa);
 
+            Log.Information("Atualizado pessoa " + pessoa.Razao_Social + " com o Id " + pessoa.Id);
+
             return NoContent();
         }
 
         // DELETE api/packages/123
+        /// <summary>
+        /// Deleta a pessoa através do Id
+        /// </summary>
+        /// <param name="id">Id a ser passado para deletar a pessoa.</param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        /// <response code="204" >No Content.</response>
         [HttpDelete("{id}")]
         public IActionResult Delete(int id, Pessoa model)
         {
@@ -158,10 +219,18 @@ namespace API.Controllers
 
             _repository.Delete(pessoa);
 
+            Log.Information("Deletada pessoa " + pessoa.Razao_Social + " com o Id " + pessoa.Id);
+
             return NoContent();
         }
 
         // PUT api/packages/123
+        /// <summary>
+        /// Ativar Pessoa
+        /// </summary>
+        /// <param name="id">Id a ser passado para Ativar o cadastro da pessoa.</param>
+        /// <returns></returns>
+        /// <response code="204" >No Content.</response>
         [HttpPut("{id}/ativar")]
         public IActionResult Ativar(int id)
         {
@@ -175,10 +244,18 @@ namespace API.Controllers
 
             _repository.Update(pessoa);
 
+            Log.Information("Ativada pessoa " + pessoa.Razao_Social + " com o Id " + pessoa.Id);
+
             return NoContent();
         }
 
         // PUT api/packages/123
+        /// <summary>
+        /// Desativar Pessoa
+        /// </summary>
+        /// <param name="id">Id a ser passado para Desativar o cadastro da pessoa.</param>
+        /// <returns></returns>
+        /// <response code="204" >No Content.</response>
         [HttpPut("{id}/desativar")]
         public IActionResult Desativar(int id)
         {
@@ -195,6 +272,8 @@ namespace API.Controllers
             }
 
             _repository.Update(pessoa);
+
+            Log.Information("Desativada pessoa " + pessoa.Razao_Social + " com o Id " + pessoa.Id);
 
             return NoContent();
         }
